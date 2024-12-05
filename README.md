@@ -1,8 +1,25 @@
-# React + Vite
+# BusMap
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based school bus seating management system that optimizes student seating arrangements based on bus stops and sibling groups.
 
-Currently, two official plugins are available:
+## Features
+- Student management with ID system
+- Sibling group tracking
+- Stop-based seating optimization
+- Interactive seating chart
+- Student search and filtering
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- React 18 with Vite
+- Tailwind CSS
+- shadcn/ui components
+- Lucide icons
+
+## Development
+```bash
+npm install
+npm run dev
+```
+
+## Contributing
+Pull requests welcome. For major changes, open an issue first.
