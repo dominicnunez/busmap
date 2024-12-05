@@ -1,3 +1,4 @@
+import { StudentTable } from './components/tables/StudentTable';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 
@@ -11,6 +12,7 @@ export default function App() {
           Add Student
         </Button>
       </div>
+      <StudentTable />
     </div>
   );
 }
