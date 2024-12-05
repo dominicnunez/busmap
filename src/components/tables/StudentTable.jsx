@@ -1,12 +1,18 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Users, Edit2, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 
-export function StudentTable() {
+export function StudentTable({ students }) {
   const [searchTerm, setSearchTerm] = useState('');
-  
+
+  // Filter students based on the search term
+  const filteredStudents = students.filter((student) => {
+    const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
+    return fullName.includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
@@ -28,15 +34,36 @@ export function StudentTable() {
               <TableHead>ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Stop #</TableHead>
-              <TableHead>Siblings</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-        
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student, index) => (
+                <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{`${student.firstName} ${student.lastName}`}</TableCell>
+                  <TableCell>{student.stopNumber}</TableCell>
+                  <TableCell>
+                    <button className="text-blue-600 hover:underline">Edit</button>
+                    <button className="text-red-600 hover:underline ml-4">Delete</button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  No students found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
     </div>
   );
 }
+
+StudentTable.propTypes = {
+    students: PropTypes.array.isRequired,
+  };
