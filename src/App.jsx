@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { StudentTable } from './components/tables/StudentTable';
 import { AddStudent } from './components/modals/AddStudent';
 import { Button } from '@/components/ui/button';
@@ -12,24 +13,25 @@ export default function App() {
   const handleAddStudent = (newStudent) => {
     if (editStudent) {
       setStudents((prevStudents) =>
-        prevStudents.map((student, index) =>
-          index == editStudent.index ? newStudent : student
+        prevStudents.map((student) =>
+          student.id === editStudent.id ? { ...newStudent, id: student.id } : student
         )
       );
       setEditStudent(null);
     } else {
-    setStudents((prevStudents) => [...prevStudents, newStudent]);
-  }
-  setIsAddStudentOpen(false);
-};
+      setStudents((prevStudents) => [...prevStudents, { ...newStudent, id: uuidv4() }]);
+    }
+    setIsAddStudentOpen(false);
+  };
 
-  const handleEditStudent = (index) => {
-    setEditStudent({ ...students[index], index });
+  const handleEditStudent = (id) => {
+    const studentToEdit = students.find((student) => student.id === id);
+    setEditStudent(studentToEdit);
     setIsAddStudentOpen(true);
   };
 
-  const handleDeleteStudent = (index) => {
-    setStudents((prevStudents) => prevStudents.filter((_, i) => i !== index));
+  const handleDeleteStudent = (id) => {
+    setStudents((prevStudents) => prevStudents.filter((student) => student.id !== id));
   };
 
   return (
@@ -41,8 +43,20 @@ export default function App() {
           Add Student
         </Button>
       </div>
-      <StudentTable students={students} onEdit={handleEditStudent} onDelete={handleDeleteStudent}/>
-      <AddStudent open={isAddStudentOpen} onClose={() => {setIsAddStudentOpen(false); setEditStudent(null)}} onAdd={handleAddStudent} editStudent={editStudent}/>
+      <StudentTable 
+        students={students} 
+        onEdit={handleEditStudent} 
+        onDelete={handleDeleteStudent}
+      />
+      <AddStudent 
+        open={isAddStudentOpen} 
+        onClose={() => {
+          setIsAddStudentOpen(false);
+          setEditStudent(null);
+        }}
+        onAdd={handleAddStudent}
+        editStudent={editStudent}
+      />
     </div>
   );
 }
