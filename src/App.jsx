@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { StudentTable } from './components/tables/StudentTable';
 import { AddStudent } from './components/modals/AddStudent';
@@ -7,8 +7,15 @@ import { PlusCircle } from 'lucide-react';
 
 export default function App() {
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
-  const [students, setStudents] = useState([]);
+  const [students, setStudents] = useState(() => {
+    const saved = localStorage.getItem('students');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [editStudent, setEditStudent] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem('students', JSON.stringify(students));
+  }, [students]);
 
   const handleAddStudent = (newStudent) => {
     if (editStudent) {
