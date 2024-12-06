@@ -32,15 +32,21 @@ export function AddStudent({ open, onClose, onAdd, editStudent, students }) {
         active: true,
     });
 
+    
     const availableStudents = students.filter(s => 
         s.id !== student.id && 
         !student.siblings?.includes(s.id)
     );
-
+    
     const linkedSiblings = students.filter(s => 
         student.siblings?.includes(s.id)
     );
-
+    
+    const handleOverlayClick = (event) => {
+        // Prevent the dialog from closing when clicking outside
+        event.preventDefault();
+    };
+    
     useEffect(() => {
         if (editStudent) {
             setStudent({
@@ -101,7 +107,7 @@ export function AddStudent({ open, onClose, onAdd, editStudent, students }) {
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent>
+            <DialogContent onInteractOutside={handleOverlayClick}>
                 <DialogHeader>
                     <DialogTitle>Add Student</DialogTitle>
                     <VisuallyHidden.Root>
