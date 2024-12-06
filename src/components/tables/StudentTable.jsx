@@ -2,9 +2,10 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Link2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-export function StudentTable({ students, onEdit, onDelete }) {
+export function StudentTable({ students, onEdit, onDelete, onLinkSiblings }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredStudents = students.filter((student) => {
@@ -49,21 +50,32 @@ export function StudentTable({ students, onEdit, onDelete }) {
                   <TableCell>{student.stopNumber}</TableCell>
                   <TableCell>{student.amRoute ? '✓' : '✗'}</TableCell>
                   <TableCell>{student.pmRoute ? '✓' : '✗'}</TableCell>
-                  <TableCell>{student.siblings?.length || 0}</TableCell>
+                  <TableCell className="hover:cursor-pointer hover:text-blue-600">
+                    {student.siblings?.length || 0}
+                  </TableCell>
                   <TableCell>{student.active ? '✓' : '✗'}</TableCell>
-                  <TableCell>
-                    <button
-                      className="text-blue-600 hover:underline"
+                  <TableCell className="space-x-2">
+                    <Button
+                      variant="ghost"
+                      className="text-blue-600 hover:text-blue-800"
                       onClick={() => onEdit(student.id)}
                     >
                       Edit
-                    </button>
-                    <button
-                      className="text-red-600 hover:underline ml-4"
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="text-red-600 hover:text-red-800"
                       onClick={() => onDelete(student.id)}
                     >
                       Delete
-                    </button>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="text-gray-600 hover:text-gray-800"
+                      onClick={() => onLinkSiblings(student)}
+                    >
+                      <Link2 className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -80,10 +92,10 @@ export function StudentTable({ students, onEdit, onDelete }) {
     </div>
   );
 }
-  
-  StudentTable.propTypes = {
-    students: PropTypes.array.isRequired,
-    onEdit: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
-  };
-  
+
+StudentTable.propTypes = {
+  students: PropTypes.array.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onLinkSiblings: PropTypes.func.isRequired,
+};

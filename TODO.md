@@ -3,10 +3,9 @@
 ## Features to Implement
 
 ### Other features
-- Use LocalStorage
-- Sticky headers
 - Enable exporting the student list to CSV or JSON format.
 - Implement an import feature to allow uploading a file to populate the student list.
+- Sticky headers for TableHeads
 
 ### AddStudent component changes:
 
