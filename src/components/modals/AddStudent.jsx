@@ -27,10 +27,11 @@ import {
   editStudent as editStudentAction,
 } from "@/store/studentSlice";
 
-export function AddStudent({ open, onClose, editId }) {
+export function AddStudent({ isOpen, onClose }) {
   const dispatch = useDispatch();
   const students = useSelector((state) => state.students.students);
-  const editStudent = students.find((s) => s.id === editId);
+  const studentId = isOpen?.studentId;
+  const editingStudent = students.find((s) => s.id === studentId);
 
   const [student, setStudent] = useState({
     id: null,
@@ -52,10 +53,10 @@ export function AddStudent({ open, onClose, editId }) {
   );
 
   useEffect(() => {
-    if (editStudent) {
+    if (editingStudent) {
       setStudent({
-        ...editStudent,
-        siblings: editStudent.siblings ?? [],
+        ...editingStudent,
+        siblings: editingStudent.siblings ?? [],
       });
     } else {
       setStudent({
@@ -69,15 +70,15 @@ export function AddStudent({ open, onClose, editId }) {
         active: true,
       });
     }
-  }, [editStudent]);
+  }, [editingStudent]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editStudent) {
+    if (editingStudent) {
       dispatch(
         editStudentAction({
           updatedStudent: student,
-          originalStudent: editStudent,
+          originalStudent: editingStudent,
         })
       );
     } else {
@@ -124,7 +125,7 @@ export function AddStudent({ open, onClose, editId }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent onInteractOutside={handleOverlayClick}>
         <DialogHeader>
           <DialogTitle>Add Student</DialogTitle>
@@ -219,7 +220,7 @@ export function AddStudent({ open, onClose, editId }) {
             </div>
           </div>
           <Button type="submit" className="w-full">
-            {editStudent ? "Save Changes" : "Add Student"}
+            {editingStudent ? "Save Changes" : "Add Student"}
           </Button>
         </form>
       </DialogContent>
@@ -228,7 +229,6 @@ export function AddStudent({ open, onClose, editId }) {
 }
 
 AddStudent.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  editId: PropTypes.string,
-};
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired
+  };

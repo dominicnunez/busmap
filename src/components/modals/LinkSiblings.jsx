@@ -19,9 +19,11 @@ import {
 
 import { linkSiblings } from "@/store/studentSlice";
 
-export function LinkSiblings({ open, onClose, currentStudent }) {
+export function LinkSiblings({ isOpen, onClose }) {
   const dispatch = useDispatch();
   const students = useSelector((state) => state.students.students);
+  const studentId = isOpen?.studentId;
+  const currentStudent = students.find((s) => s.id === studentId);
 
   const availableStudents = students.filter(
     (s) =>
@@ -40,7 +42,7 @@ export function LinkSiblings({ open, onClose, currentStudent }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Link Siblings</DialogTitle>
@@ -68,7 +70,6 @@ export function LinkSiblings({ open, onClose, currentStudent }) {
 }
 
 LinkSiblings.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  currentStudent: PropTypes.object,
-};
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired
+  };
