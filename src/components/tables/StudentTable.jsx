@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function StudentTable({ students, onEdit, onDelete, onLinkSiblings }) {
+export function StudentTable({ students, onEdit, onDelete }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredStudents = students.filter((student) => {
@@ -72,7 +72,6 @@ export function StudentTable({ students, onEdit, onDelete, onLinkSiblings }) {
                     <Button
                       variant="ghost"
                       className="text-gray-600 hover:text-gray-800"
-                      onClick={() => onLinkSiblings(student)}
                     >
                       <Link2 className="h-4 w-4" />
                     </Button>
@@ -97,5 +96,4 @@ StudentTable.propTypes = {
   students: PropTypes.array.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  onLinkSiblings: PropTypes.func.isRequired,
 };

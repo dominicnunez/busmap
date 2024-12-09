@@ -101,11 +101,6 @@ export default function App() {
     });
   };
 
-  const handleOpenLinkSiblings = (student) => {
-    setCurrentStudent(student);
-    setIsLinkSiblingsOpen(true);
-  };
-
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
@@ -119,7 +114,6 @@ export default function App() {
         students={students}
         onEdit={handleEditStudent}
         onDelete={handleDeleteStudent}
-        onLinkSiblings={handleOpenLinkSiblings}
       />
       <AddStudent
         open={isAddStudentOpen}
