@@ -1,11 +1,17 @@
-import PropTypes from 'prop-types';
 import { useState } from 'react';
+import PropTypes from "prop-types";
+import { useDispatch, useSelector } from 'react-redux';
+
+import { Search, Link2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { Search, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function StudentTable({ students, onEdit, onDelete }) {
+import { deleteStudent } from '@/store/studentSlice';
+
+export function StudentTable({ onEdit }) {
+  const dispatch = useDispatch();
+  const students = useSelector(state => state.students.students);
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredStudents = students.filter((student) => {
@@ -65,7 +71,7 @@ export function StudentTable({ students, onEdit, onDelete }) {
                     <Button
                       variant="ghost"
                       className="text-red-600 hover:text-red-800"
-                      onClick={() => onDelete(student.id)}
+                      onClick={() => dispatch(deleteStudent(student.id))}
                     >
                       Delete
                     </Button>
@@ -93,7 +99,5 @@ export function StudentTable({ students, onEdit, onDelete }) {
 }
 
 StudentTable.propTypes = {
-  students: PropTypes.array.isRequired,
   onEdit: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
 };

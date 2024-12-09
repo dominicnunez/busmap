@@ -1,32 +1,27 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+
+import { useDispatch, useSelector } from "react-redux";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import {
-  Dialog,
-  DialogContent,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Dialog,
+    DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
-export function LinkSiblings({
-  open,
-  onClose,
-  onLink,
-  students,
-  currentStudent,
-  mode = "dropdown", // "dropdown" or "checkbox"
-}) {
-  const [selectedSiblings, setSelectedSiblings] = useState([]);
+import { linkSiblings } from "@/store/studentSlice";
+
+export function LinkSiblings({ open, onClose, currentStudent }) {
+  const dispatch = useDispatch();
+  const students = useSelector((state) => state.students.students);
 
   const availableStudents = students.filter(
     (s) =>
@@ -35,21 +30,12 @@ export function LinkSiblings({
   );
 
   const handleSiblingSelect = (selectedId) => {
-    onLink(currentStudent.id, selectedId);
-    onClose();
-  };
-
-  const handleCheckboxChange = (checked, studentId) => {
-    setSelectedSiblings((prev) =>
-      checked ? [...prev, studentId] : prev.filter((id) => id !== studentId)
+    dispatch(
+      linkSiblings({
+        studentId: currentStudent.id,
+        siblingIds: [selectedId],
+      })
     );
-  };
-
-  const handleDone = () => {
-    if (selectedSiblings.length > 0) {
-      onLink(currentStudent.id, selectedSiblings);
-    }
-    setSelectedSiblings([]);
     onClose();
   };
 
@@ -60,43 +46,22 @@ export function LinkSiblings({
           <DialogTitle>Link Siblings</DialogTitle>
           <VisuallyHidden.Root>
             <DialogDescription>
-              first and last name, stop number, and AM/PM routing
+              Select a student to link as sibling
             </DialogDescription>
           </VisuallyHidden.Root>
         </DialogHeader>
-        {mode === "dropdown" ? (
-          <Select onValueChange={handleSiblingSelect}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select sibling" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableStudents.map((student) => (
-                <SelectItem key={student.id} value={student.id}>
-                  {student.firstName} {student.lastName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <div className="space-y-4">
+        <Select onValueChange={handleSiblingSelect}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select sibling" />
+          </SelectTrigger>
+          <SelectContent>
             {availableStudents.map((student) => (
-              <div key={student.id} className="flex items-center space-x-2">
-                <Checkbox
-                  checked={selectedSiblings.includes(student.id)}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange(checked, student.id)
-                  }
-                />
-                <span>
-                  {student.firstName} {student.lastName}
-                </span>
-              </div>
+              <SelectItem key={student.id} value={student.id}>
+                {student.firstName} {student.lastName}
+              </SelectItem>
             ))}
-            <Button onClick={handleDone} className="w-full">
-              Done
-            </Button>
-          </div>
-        )}
+          </SelectContent>
+        </Select>
       </DialogContent>
     </Dialog>
   );
@@ -105,8 +70,5 @@ export function LinkSiblings({
 LinkSiblings.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onLink: PropTypes.func.isRequired,
-  students: PropTypes.array.isRequired,
   currentStudent: PropTypes.object,
-  mode: PropTypes.oneOf(["dropdown", "checkbox"]),
 };
