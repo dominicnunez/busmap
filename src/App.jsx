@@ -5,33 +5,13 @@ import { Button } from '@/components/ui/button';
 
 import { StudentTable } from './components/tables/StudentTable';
 import { AddStudent } from './components/modals/AddStudent';
-import { LinkSiblings } from './components/modals/LinkSiblings';
+// import { LinkSiblings } from './components/modals/LinkSiblings';
 
 export default function App() {
-  // const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
-  // const [isLinkSiblingsOpen, setIsLinkSiblingsOpen] = useState(false);
-  // const [currentStudent, setCurrentStudent] = useState(null);
-  // const [editStudent, setEditStudent] = useState(null);
-
-  // const handleEdit = (id) => {
-  //   setEditStudent(id);
-  //   setIsAddStudentOpen(true);
-  // }
-
-  // const handleCloseAddStudent = () => {
-  //   setIsAddStudentOpen(false);
-  //   setEditStudent(null);
-  // }
-
-  // const handleCloseLinkSiblings = () => {
-  //   setIsLinkSiblingsOpen(false);
-  //   setCurrentStudent(null);
-  // }
-
   const closedModal = { isOpen: false, studentId: null }
 
   const [studentModalData, setStudentModalData] = useState(closedModal);
-  const [siblingModalData, setSiblingModalData] = useState(closedModal);
+  // const [siblingModalData, setSiblingModalData] = useState(closedModal);
 
   return (
     <div className="p-8">
