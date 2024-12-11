@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from 'react-redux';
-
+import { toast } from 'sonner';
 import { Search, Link2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
 import { deleteStudent } from '@/store/studentSlice';
 
 export function StudentTable({ onEdit }) {
@@ -18,6 +17,11 @@ export function StudentTable({ onEdit }) {
     const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
     return fullName.includes(searchTerm.toLowerCase());
   });
+
+  const handleDelete = (id) => {
+    dispatch(deleteStudent(id));
+    toast.success('Student deleted successfully');
+  };
 
   return (
     <div className="space-y-4">
@@ -69,9 +73,9 @@ export function StudentTable({ onEdit }) {
                       Edit
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="destructive"
                       className="text-red-600 hover:text-red-800"
-                      onClick={() => dispatch(deleteStudent(student.id))}
+                      onClick={() => handleDelete(student.id)}
                     >
                       Delete
                     </Button>

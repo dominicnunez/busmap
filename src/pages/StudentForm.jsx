@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { X, Loader2 } from "lucide-react"; // Add Loader2
+import { toast } from "sonner";
+import { X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,18 +13,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
-import { addStudent, editStudent as editStudentAction } from "@/store/studentSlice";
+  addStudent,
+  editStudent as editStudentAction,
+} from "@/store/studentSlice";
 
 export function StudentForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
-  const students = useSelector(state => state.students.students);
-  const editingStudent = students.find(s => s.id === id);
+  const students = useSelector((state) => state.students.students);
+  const editingStudent = students.find((s) => s.id === id);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -56,22 +58,27 @@ export function StudentForm() {
     }
   }, [editingStudent]);
 
+  const returnErrMessage = (err) => {
+    return err ? err.message : "Failed to save student";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
     try {
-      // Check for duplicate student
       const isDuplicate = students.some(
-        existingStudent => 
-          existingStudent.firstName.toLowerCase() === student.firstName.toLowerCase() &&
-          existingStudent.lastName.toLowerCase() === student.lastName.toLowerCase() &&
+        (existingStudent) =>
+          existingStudent.firstName.toLowerCase() ===
+            student.firstName.toLowerCase() &&
+          existingStudent.lastName.toLowerCase() ===
+            student.lastName.toLowerCase() &&
           existingStudent.id !== editingStudent?.id
       );
 
       if (isDuplicate) {
-        throw new Error('A student with this name already exists');
+        throw new Error("A student with this name already exists");
       }
 
       if (editingStudent) {
@@ -81,12 +88,19 @@ export function StudentForm() {
             originalStudent: editingStudent,
           })
         );
+        toast.success(
+          `${student.firstName} ${student.lastName} updated successfully`
+        );
       } else {
         await dispatch(addStudent(student));
+        toast.success(
+          `${student.firstName} ${student.lastName} added successfully`
+        );
       }
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      setError(err.message || 'Failed to save student');
+      setError(returnErrMessage(err));
+      toast.error(returnErrMessage(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -94,6 +108,15 @@ export function StudentForm() {
 
   const handleChange = (field) => (e) => {
     setStudent((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleNumberChange = (field) => (e) => {
+    const value = e.target.value;
+  
+    // Allow only numbers and prevent invalid input like negative numbers
+    if (/^\d*$/.test(value)) {
+      setStudent((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleCheckboxChange = (field) => (checked) => {
@@ -117,23 +140,25 @@ export function StudentForm() {
   return (
     <div className="max-w-2xl mx-auto p-8">
       <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/')}
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
           disabled={isSubmitting}
         >
           ← Back
         </Button>
         <h1 className="text-2xl font-bold mt-4">
-          {editingStudent ? 'Edit Student' : 'Add New Student'}
+          {editingStudent ? "Edit Student" : "Add New Student"}
         </h1>
       </div>
 
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+      <VisuallyHidden.Root>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+      </VisuallyHidden.Root>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
@@ -154,7 +179,7 @@ export function StudentForm() {
           type="number"
           placeholder="Stop Number"
           value={student.stopNumber}
-          onChange={handleChange("stopNumber")}
+          onChange={handleNumberChange("stopNumber")}
           required
           disabled={isSubmitting}
         />
@@ -223,18 +248,16 @@ export function StudentForm() {
           </div>
         </div>
         <div className="flex gap-4 pt-4">
-        <Button 
-            type="submit" 
-            className="flex-1" 
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="flex-1" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {editingStudent ? "Saving..." : "Adding..."}
               </>
+            ) : editingStudent ? (
+              "Save Changes"
             ) : (
-              editingStudent ? "Save Changes" : "Add Student"
+              "Add Student"
             )}
           </Button>
         </div>
