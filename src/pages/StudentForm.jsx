@@ -15,12 +15,15 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { useStudentFormValidation } from "@/hooks/useStudentFormValidation";
 import {
   addStudent,
   editStudent as editStudentAction,
 } from "@/store/studentSlice";
 
 export function StudentForm() {
+  const { validateStudent, getFieldError, clearErrors } =
+    useStudentFormValidation();
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -112,7 +115,7 @@ export function StudentForm() {
 
   const handleNumberChange = (field) => (e) => {
     const value = e.target.value;
-  
+
     // Allow only numbers and prevent invalid input like negative numbers
     if (/^\d*$/.test(value)) {
       setStudent((prev) => ({ ...prev, [field]: value }));
@@ -161,29 +164,54 @@ export function StudentForm() {
       </VisuallyHidden.Root>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          placeholder="First Name"
-          value={student.firstName}
-          onChange={handleChange("firstName")}
-          required
-          disabled={isSubmitting}
-        />
-        <Input
-          placeholder="Last Name"
-          value={student.lastName}
-          onChange={handleChange("lastName")}
-          required
-          disabled={isSubmitting}
-        />
-        <Input
-          type="number"
-          placeholder="Stop Number"
-          value={student.stopNumber}
-          onChange={handleNumberChange("stopNumber")}
-          required
-          disabled={isSubmitting}
-        />
-        {availableStudents.length > 0 && (
+        <div className="space-y-4">
+          <div>
+            <Input
+              placeholder="First Name"
+              value={student.firstName}
+              onChange={handleChange("firstName")}
+              disabled={isSubmitting}
+              className={getFieldError("firstName") ? "border-red-500" : ""}
+            />
+            {getFieldError("firstName") && (
+              <p className="text-sm text-red-500 mt-1">
+                {getFieldError("firstName")}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Input
+              placeholder="Last Name"
+              value={student.lastName}
+              onChange={handleChange("lastName")}
+              disabled={isSubmitting}
+              className={getFieldError("lastName") ? "border-red-500" : ""}
+            />
+            {getFieldError("lastName") && (
+              <p className="text-sm text-red-500 mt-1">
+                {getFieldError("lastName")}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Input
+              type="number"
+              placeholder="Stop Number"
+              value={student.stopNumber}
+              onChange={handleNumberChange("stopNumber")}
+              disabled={isSubmitting}
+              className={getFieldError("stopNumber") ? "border-red-500" : ""}
+            />
+            {getFieldError("stopNumber") && (
+              <p className="text-sm text-red-500 mt-1">
+                {getFieldError("stopNumber")}
+              </p>
+            )}
+          </div>
+        </div>
+        {/* {availableStudents.length > 0 && (
           <Select onValueChange={handleSiblingSelect}>
             <SelectTrigger>
               <SelectValue placeholder="Link sibling" />
@@ -220,7 +248,7 @@ export function StudentForm() {
               ))}
             </div>
           </div>
-        )}
+        )} */}
         <div className="flex space-x-4">
           <div className="flex items-center space-x-2">
             <Checkbox
