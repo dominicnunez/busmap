@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react"; // Add Loader2
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Alert,
+  AlertDescription,
+} from "@/components/ui/alert";
 import { addStudent, editStudent as editStudentAction } from "@/store/studentSlice";
 
 export function StudentForm() {
@@ -20,6 +24,9 @@ export function StudentForm() {
   const dispatch = useDispatch();
   const students = useSelector(state => state.students.students);
   const editingStudent = students.find(s => s.id === id);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const [student, setStudent] = useState({
     id: null,
@@ -49,19 +56,40 @@ export function StudentForm() {
     }
   }, [editingStudent]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingStudent) {
-      dispatch(
-        editStudentAction({
-          updatedStudent: student,
-          originalStudent: editingStudent,
-        })
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Check for duplicate student
+      const isDuplicate = students.some(
+        existingStudent => 
+          existingStudent.firstName.toLowerCase() === student.firstName.toLowerCase() &&
+          existingStudent.lastName.toLowerCase() === student.lastName.toLowerCase() &&
+          existingStudent.id !== editingStudent?.id
       );
-    } else {
-      dispatch(addStudent(student));
+
+      if (isDuplicate) {
+        throw new Error('A student with this name already exists');
+      }
+
+      if (editingStudent) {
+        await dispatch(
+          editStudentAction({
+            updatedStudent: student,
+            originalStudent: editingStudent,
+          })
+        );
+      } else {
+        await dispatch(addStudent(student));
+      }
+      navigate('/');
+    } catch (err) {
+      setError(err.message || 'Failed to save student');
+    } finally {
+      setIsSubmitting(false);
     }
-    navigate('/');
   };
 
   const handleChange = (field) => (e) => {
@@ -89,11 +117,23 @@ export function StudentForm() {
   return (
     <div className="max-w-2xl mx-auto p-8">
       <div className="mb-6">
-        <Button variant="ghost" onClick={() => navigate('/')}>← Back</Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/')}
+          disabled={isSubmitting}
+        >
+          ← Back
+        </Button>
         <h1 className="text-2xl font-bold mt-4">
           {editingStudent ? 'Edit Student' : 'Add New Student'}
         </h1>
       </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
@@ -101,12 +141,14 @@ export function StudentForm() {
           value={student.firstName}
           onChange={handleChange("firstName")}
           required
+          disabled={isSubmitting}
         />
         <Input
           placeholder="Last Name"
           value={student.lastName}
           onChange={handleChange("lastName")}
           required
+          disabled={isSubmitting}
         />
         <Input
           type="number"
@@ -114,6 +156,7 @@ export function StudentForm() {
           value={student.stopNumber}
           onChange={handleChange("stopNumber")}
           required
+          disabled={isSubmitting}
         />
         {availableStudents.length > 0 && (
           <Select onValueChange={handleSiblingSelect}>
@@ -180,11 +223,19 @@ export function StudentForm() {
           </div>
         </div>
         <div className="flex gap-4 pt-4">
-          <Button type="button" variant="outline" onClick={() => navigate('/')}>
-            Cancel
-          </Button>
-          <Button type="submit" className="flex-1">
-            {editingStudent ? "Save Changes" : "Add Student"}
+        <Button 
+            type="submit" 
+            className="flex-1" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {editingStudent ? "Saving..." : "Adding..."}
+              </>
+            ) : (
+              editingStudent ? "Save Changes" : "Add Student"
+            )}
           </Button>
         </div>
       </form>
