@@ -14,8 +14,9 @@ import { addStudent, editStudent as editStudentAction } from "@/store/studentSli
 export function StudentForm() {
   const { validateField, validateStudent, getValidationError } = useStudentFormValidation();
   const { setError, clearAllErrors, getError } = useErrorManager();
-  const navigate = useNavigate();
   const { id } = useParams();
+  
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const students = useSelector((state) => state.students.students);
   const editingStudent = students.find((s) => s.id === id);
