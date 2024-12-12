@@ -22,13 +22,24 @@ const validateName = (value, fieldName) => {
 };
 
 const validateStopNumber = (value, fieldName) => {
+  // Required check
   if (!value) {
-    return `${fieldName} is required`;
-  } else if (parseInt(value) < 1) {
-    return `${fieldName} must be greater than 0`;
-  } else if (parseInt(value) > 999) {
-    return `${fieldName} cannot exceed 999`;
+    return `${fieldName} is required.`;
   }
+
+  // Check for negative numbers immediately
+  if (value.includes('-')) {
+    return `${fieldName} cannot be negative.`;
+  }
+
+  // Check numeric range
+  const numValue = parseInt(value);
+  if (numValue < 1) {
+    return `${fieldName} must be greater than 0.`;
+  } else if (numValue > 999) {
+    return `${fieldName} cannot exceed 999.`;
+  }
+
   return "";
 };
 

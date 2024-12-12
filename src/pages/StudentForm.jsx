@@ -7,14 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-// import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useStudentFormValidation } from "../hooks/useStudentFormValidation";
 import { useErrorManager, ErrorTypes } from "../hooks/useErrorManager";
 import { addStudent, editStudent as editStudentAction } from "@/store/studentSlice";
 
 export function StudentForm() {
   const { validateField, validateStudent, getValidationError } = useStudentFormValidation();
-  const { setError, clearError, clearAllErrors, getError } = useErrorManager();
+  const { setError, clearAllErrors, getError } = useErrorManager();
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -44,7 +43,6 @@ export function StudentForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearAllErrors();
     
     if (!validateStudent(student)) {
       setIsSubmitting(false);
@@ -52,6 +50,7 @@ export function StudentForm() {
       return;
     }
     
+    clearAllErrors();
     setIsSubmitting(true);
     
     try {
@@ -87,27 +86,11 @@ export function StudentForm() {
     }
   };
 
-  const handleChange = (field) => (e) => {
-    const value = e.target.value;
-    setStudent((prev) => ({ ...prev, [field]: value }));
-    validateField(field, value, student);
-  };
-
-  const handleNumberChange = (field) => (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      setStudent((prev) => ({ ...prev, [field]: value }));
-      validateField(field, value, student);
-      clearError(ErrorTypes.INPUT, field);
-    } else {
-      setError(ErrorTypes.INPUT, field, "Stop number can only contain positive numbers");
-    }
-  };
-
-  const handleCheckboxChange = (field) => (checked) => {
-    const updatedStudent = { ...student, [field]: checked };
+  const handleInputChange = (field, isCheckbox = false) => (e) => {
+    const value = isCheckbox ? e : e.target.value;
+    const updatedStudent = { ...student, [field]: value };
     setStudent(updatedStudent);
-    validateField(field, checked, updatedStudent);
+    validateField(field, value, updatedStudent);
   };
 
   return (
@@ -132,7 +115,7 @@ export function StudentForm() {
           <Input
             placeholder="First Name"
             value={student.firstName}
-            onChange={handleChange("firstName")}
+            onChange={handleInputChange("firstName")}
             disabled={isSubmitting}
             className={getValidationError("firstName") ? "border-red-500" : ""}
           />
@@ -145,7 +128,7 @@ export function StudentForm() {
           <Input
             placeholder="Last Name"
             value={student.lastName}
-            onChange={handleChange("lastName")}
+            onChange={handleInputChange("lastName")}
             disabled={isSubmitting}
             className={getValidationError("lastName") ? "border-red-500" : ""}
           />
@@ -159,7 +142,7 @@ export function StudentForm() {
             type="number"
             placeholder="Stop Number"
             value={student.stopNumber}
-            onChange={handleNumberChange("stopNumber")}
+            onChange={handleInputChange("stopNumber")}
             disabled={isSubmitting}
             className={
               (getValidationError("stopNumber") || getError(ErrorTypes.INPUT, "stopNumber"))
@@ -179,7 +162,7 @@ export function StudentForm() {
             <Checkbox
               id="am"
               checked={student.amRoute}
-              onCheckedChange={handleCheckboxChange("amRoute")}
+              onCheckedChange={handleInputChange("amRoute", true)}
             />
             <label htmlFor="am">AM Route</label>
           </div>
@@ -187,7 +170,7 @@ export function StudentForm() {
             <Checkbox
               id="pm"
               checked={student.pmRoute}
-              onCheckedChange={handleCheckboxChange("pmRoute")}
+              onCheckedChange={handleInputChange("pmRoute", true)}
             />
             <label htmlFor="pm">PM Route</label>
           </div>
@@ -195,7 +178,7 @@ export function StudentForm() {
             <Checkbox
               id="active"
               checked={student.active}
-              onCheckedChange={handleCheckboxChange("active")}
+              onCheckedChange={handleInputChange("active", true)}
             />
             <label htmlFor="active">Active</label>
           </div>
