@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useFormSubmissionValidation } from "../hooks/useFormSubmissionValidation";
 import { useStudentFormValidation } from "../hooks/useStudentFormValidation";
 import { useErrorManager, ErrorTypes } from "../hooks/useErrorManager";
 import { addStudent, editStudent as editStudentAction } from "@/store/studentSlice";
@@ -14,8 +15,9 @@ import { addStudent, editStudent as editStudentAction } from "@/store/studentSli
 export function StudentForm() {
   const { validateField, validateStudent, getValidationError } = useStudentFormValidation();
   const { setError, clearAllErrors, getError } = useErrorManager();
+  const { validateStudentForm } = useFormSubmissionValidation();
   const { id } = useParams();
-  
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const students = useSelector((state) => state.students.students);
@@ -51,21 +53,17 @@ export function StudentForm() {
       return;
     }
     
+    // Add form-level validation
+    if (!validateStudentForm({ student, editingStudent })) {
+      setIsSubmitting(false);
+      toast.error("Please fix all errors in the form before submitting.");
+      return;
+    }
+    
     clearAllErrors();
     setIsSubmitting(true);
     
     try {
-      const isDuplicate = students.some(
-        (existingStudent) =>
-          existingStudent.firstName.toLowerCase() === student.firstName.toLowerCase() &&
-          existingStudent.lastName.toLowerCase() === student.lastName.toLowerCase() &&
-          existingStudent.id !== editingStudent?.id
-      );
-
-      if (isDuplicate) {
-        throw new Error("A student with this name already exists");
-      }
-
       if (editingStudent) {
         await dispatch(
           editStudentAction({
