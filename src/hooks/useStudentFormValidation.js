@@ -1,54 +1,94 @@
-import { useState } from "react";
+import { useCallback } from "react";
+import { useErrorManager, ErrorTypes } from "./useErrorManager";
+
+const validateName = (value, fieldName) => {
+  if (!value.trim()) {
+    return `${fieldName} is required`;
+  }
+  const letterCount = (value.match(/[a-zA-Z]/g) || []).length;
+  if (letterCount < 2) {
+    return `${fieldName} must contain at least 2 letters`;
+  }
+  if (!/^[a-zA-Z\s-']+$/.test(value)) {
+    return `${fieldName} can only contain letters, spaces, hyphens and apostrophes`;
+  }
+  if (/[-']{2,}/.test(value)) {
+    return `${fieldName} cannot contain consecutive hyphens or apostrophes`;
+  }
+  if (/^[-'\s]|[-'\s]$/.test(value)) {
+    return `${fieldName} cannot start or end with hyphens, apostrophes, or spaces`;
+  }
+  return "";
+};
+
+const validateStopNumber = (value, fieldName) => {
+  if (!value) {
+    return `${fieldName} is required`;
+  } else if (parseInt(value) < 1) {
+    return `${fieldName} must be greater than 0`;
+  } else if (parseInt(value) > 999) {
+    return `${fieldName} cannot exceed 999`;
+  }
+  return "";
+};
 
 export function useStudentFormValidation() {
-  const [errors, setErrors] = useState({});
+  const { setError, clearError, clearAllErrors, getError, hasErrors } = useErrorManager();
 
-  const validateStudent = (student) => {
-    const newErrors = {};
+  const validateField = useCallback((name, value, formData) => {
+    let error = "";
+    
+    switch (name) {
+      case 'firstName':
+        error = validateName(value, "First name");
+        break;
+        
+      case 'lastName':
+        error = validateName(value, "Last name");
+        break;
 
-    // Name validations
-    if (!student.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    } else if (student.firstName.length < 2) {
-      newErrors.firstName = "First name must be at least 2 characters";
-    } else if (!/^[a-zA-Z\s-']+$/.test(student.firstName)) {
-      newErrors.firstName = "First name can only contain letters, spaces, hyphens and apostrophes";
+      case 'stopNumber':
+        error = validateStopNumber(value, "Stop number");
+        break;
+
+      case 'amRoute':
+      case 'pmRoute':
+        if (!formData.amRoute && !formData.pmRoute) {
+          error = "Student must be assigned to at least one route";
+        }
+        break;
     }
 
-    if (!student.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    } else if (student.lastName.length < 2) {
-      newErrors.lastName = "Last name must be at least 2 characters";
-    } else if (!/^[a-zA-Z\s-']+$/.test(student.lastName)) {
-      newErrors.lastName = "Last name can only contain letters, spaces, hyphens and apostrophes";
+    if (error) {
+      setError(ErrorTypes.VALIDATION, name, error);
+    } else {
+      clearError(ErrorTypes.VALIDATION, name);
     }
-
-    // Stop number validations
-    if (!student.stopNumber) {
-      newErrors.stopNumber = "Stop number is required";
-    } else if (parseInt(student.stopNumber) < 1) {
-      newErrors.stopNumber = "Stop number must be greater than 0";
-    } else if (parseInt(student.stopNumber) > 999) {
-      newErrors.stopNumber = "Stop number cannot exceed 999";
+    
+    // For route validation, handle both fields
+    if ((name === 'amRoute' || name === 'pmRoute') && error) {
+      setError(ErrorTypes.VALIDATION, 'amRoute', error);
+      setError(ErrorTypes.VALIDATION, 'pmRoute', error);
     }
+    
+    return !error;
+  }, [setError, clearError]);
 
-    // Route validation
-    if (!student.amRoute && !student.pmRoute) {
-      newErrors.route = "Student must be assigned to at least one route";
-    }
+  const validateStudent = useCallback((student) => {
+    clearAllErrors();
+    
+    // Validate all fields
+    const fields = ['firstName', 'lastName', 'stopNumber', 'amRoute', 'pmRoute'];
+    fields.forEach(field => {
+      validateField(field, student[field], student);
+    });
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const getFieldError = (fieldName) => errors[fieldName];
-
-  const clearErrors = () => setErrors({});
+    return !hasErrors(ErrorTypes.VALIDATION);
+  }, [clearAllErrors, validateField, hasErrors]);
 
   return {
+    validateField,
     validateStudent,
-    getFieldError,
-    clearErrors,
-    errors
+    getValidationError: (fieldName) => getError(ErrorTypes.VALIDATION, fieldName),
   };
 }
