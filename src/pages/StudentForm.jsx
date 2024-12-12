@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useStudentActionMessages } from "../hooks/useStudentActionMessages";
 import { useFormSubmissionValidation } from "../hooks/useFormSubmissionValidation";
 import { useStudentFormValidation } from "../hooks/useStudentFormValidation";
 import { useErrorManager, ErrorTypes } from "../hooks/useErrorManager";
@@ -16,6 +17,7 @@ export function StudentForm() {
   const { validateField, validateStudent, getValidationError } = useStudentFormValidation();
   const { setError, clearAllErrors, getError } = useErrorManager();
   const { validateStudentForm } = useFormSubmissionValidation();
+  const { showActionMessage } = useStudentActionMessages();
   const { id } = useParams();
 
   const navigate = useNavigate();
@@ -44,46 +46,93 @@ export function StudentForm() {
     }
   }, [editingStudent]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // old handleSubmit
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
     
-    if (!validateStudent(student)) {
-      setIsSubmitting(false);
-      toast.error("Please fix all errors in the form before submitting.");
-      return;
+  //   if (!validateStudent(student)) {
+  //     setIsSubmitting(false);
+  //     toast.error("Please fix all errors in the form before submitting.");
+  //     return;
+  //   }
+    
+  //   // Add form-level validation
+  //   if (!validateStudentForm({ student, editingStudent })) {
+  //     setIsSubmitting(false);
+  //     toast.error("Please fix all errors in the form before submitting.");
+  //     return;
+  //   }
+    
+  //   clearAllErrors();
+  //   setIsSubmitting(true);
+    
+  //   try {
+  //     if (editingStudent) {
+  //       await dispatch(
+  //         editStudentAction({
+  //           updatedStudent: student,
+  //           originalStudent: editingStudent,
+  //         })
+  //       );
+  //       toast.success(`${student.firstName} ${student.lastName} updated successfully`);
+  //     } else {
+  //       await dispatch(addStudent(student));
+  //       toast.success(`${student.firstName} ${student.lastName} added successfully`);
+  //     }
+  //     navigate("/");
+  //   } catch (err) {
+  //     setError(ErrorTypes.API, null, err.message || "Failed to save student");
+  //     toast.error(err.message || "Failed to save student");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!validateStudent(student)) {
+    setIsSubmitting(false);
+    showActionMessage({ type: 'error', action: 'validation' });
+    return;
+  }
+
+  if (!validateStudentForm({ student, editingStudent })) {
+    setIsSubmitting(false);
+    showActionMessage({ type: 'error', action: 'validation' });
+    return;
+  }
+  
+  clearAllErrors();
+  setIsSubmitting(true);
+  
+  try {
+    if (editingStudent) {
+      await dispatch(
+        editStudentAction({
+          updatedStudent: student,
+          originalStudent: editingStudent,
+        })
+      );
+      showActionMessage({ type: 'success', action: 'update', student });
+    } else {
+      await dispatch(addStudent(student));
+      showActionMessage({ type: 'success', action: 'add', student });
     }
-    
-    // Add form-level validation
-    if (!validateStudentForm({ student, editingStudent })) {
-      setIsSubmitting(false);
-      toast.error("Please fix all errors in the form before submitting.");
-      return;
-    }
-    
-    clearAllErrors();
-    setIsSubmitting(true);
-    
-    try {
-      if (editingStudent) {
-        await dispatch(
-          editStudentAction({
-            updatedStudent: student,
-            originalStudent: editingStudent,
-          })
-        );
-        toast.success(`${student.firstName} ${student.lastName} updated successfully`);
-      } else {
-        await dispatch(addStudent(student));
-        toast.success(`${student.firstName} ${student.lastName} added successfully`);
-      }
-      navigate("/");
-    } catch (err) {
-      setError(ErrorTypes.API, null, err.message || "Failed to save student");
-      toast.error(err.message || "Failed to save student");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    navigate("/");
+  } catch (err) {
+    const errorMessage = showActionMessage({ 
+      type: 'error', 
+      action: editingStudent ? 'update' : 'add', 
+      student,
+      error: err.message 
+    });
+    setError(ErrorTypes.API, null, errorMessage);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleInputChange = (field, isCheckbox = false) => (e) => {
     const value = isCheckbox ? e : e.target.value;
