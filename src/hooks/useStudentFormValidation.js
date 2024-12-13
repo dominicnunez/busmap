@@ -1,50 +1,9 @@
 import { useCallback } from "react";
 import { useErrorManager, ErrorTypes } from "./useErrorManager";
-
-const validateName = (value, fieldName) => {
-  if (!value.trim()) {
-    return `${fieldName} is required`;
-  }
-  const letterCount = (value.match(/[a-zA-Z]/g) || []).length;
-  if (letterCount < 2) {
-    return `${fieldName} must contain at least 2 letters`;
-  }
-  if (!/^[a-zA-Z\s-']+$/.test(value)) {
-    return `${fieldName} can only contain letters, spaces, hyphens and apostrophes`;
-  }
-  if (/[-']{2,}/.test(value)) {
-    return `${fieldName} cannot contain consecutive hyphens or apostrophes`;
-  }
-  if (/^[-'\s]|[-'\s]$/.test(value)) {
-    return `${fieldName} cannot start or end with hyphens, apostrophes, or spaces`;
-  }
-  return "";
-};
-
-const validateStopNumber = (value, fieldName) => {
-  // Required check
-  if (!value) {
-    return `${fieldName} is required.`;
-  }
-
-  // Check for negative numbers immediately
-  if (value.includes('-')) {
-    return `${fieldName} cannot be negative.`;
-  }
-
-  // Check numeric range
-  const numValue = parseInt(value);
-  if (numValue < 1) {
-    return `${fieldName} must be greater than 0.`;
-  } else if (numValue > 999) {
-    return `${fieldName} cannot exceed 999.`;
-  }
-
-  return "";
-};
+import { validateName, validateStopNumber, validateRoutes } from "../validation/validationRules";
 
 export function useStudentFormValidation() {
-  const { setError, clearError, clearAllErrors, getError, hasErrors } = useErrorManager();
+  const { setError, clearError, clearAllErrors, getError } = useErrorManager();
 
   const validateField = useCallback((name, value, formData) => {
     let error = "";
@@ -53,20 +12,15 @@ export function useStudentFormValidation() {
       case 'firstName':
         error = validateName(value, "First name");
         break;
-        
       case 'lastName':
         error = validateName(value, "Last name");
         break;
-
       case 'stopNumber':
-        error = validateStopNumber(value, "Stop number");
+        error = validateStopNumber(value);
         break;
-
       case 'amRoute':
       case 'pmRoute':
-        if (!formData.amRoute && !formData.pmRoute) {
-          error = "Student must be assigned to at least one route";
-        }
+        error = validateRoutes(formData.amRoute, formData.pmRoute);
         break;
     }
 
@@ -76,7 +30,6 @@ export function useStudentFormValidation() {
       clearError(ErrorTypes.VALIDATION, name);
     }
     
-    // For route validation, handle both fields
     if ((name === 'amRoute' || name === 'pmRoute') && error) {
       setError(ErrorTypes.VALIDATION, 'amRoute', error);
       setError(ErrorTypes.VALIDATION, 'pmRoute', error);
@@ -87,15 +40,14 @@ export function useStudentFormValidation() {
 
   const validateStudent = useCallback((student) => {
     clearAllErrors();
-    
-    // Validate all fields
-    const fields = ['firstName', 'lastName', 'stopNumber', 'amRoute', 'pmRoute'];
-    fields.forEach(field => {
-      validateField(field, student[field], student);
-    });
-
-    return !hasErrors(ErrorTypes.VALIDATION);
-  }, [clearAllErrors, validateField, hasErrors]);
+    const validations = [
+      validateField('firstName', student.firstName, student),
+      validateField('lastName', student.lastName, student),
+      validateField('stopNumber', student.stopNumber, student),
+      validateField('amRoute', student.amRoute, student)
+    ];
+    return validations.every(Boolean);
+  }, [clearAllErrors, validateField]);
 
   return {
     validateField,

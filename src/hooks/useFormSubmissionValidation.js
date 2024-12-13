@@ -1,6 +1,12 @@
 import { useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useErrorManager, ErrorTypes } from "./useErrorManager";
+import { 
+  validateName, 
+  validateStopNumber, 
+  validateRoutes,
+  validateDuplicateStudent 
+} from "../valdation/validationRules";
 
 export function useFormSubmissionValidation() {
   const { setError, clearError } = useErrorManager();
@@ -8,23 +14,30 @@ export function useFormSubmissionValidation() {
 
   const validateStudentForm = useCallback(
     ({ student, editingStudent = null }) => {
-      // Clear any previous submission errors
       clearError(ErrorTypes.API);
 
-      // Check for duplicate student names
-      const isDuplicate = students.some(
-        (existingStudent) =>
-          existingStudent.firstName.toLowerCase() === student.firstName.toLowerCase() &&
-          existingStudent.lastName.toLowerCase() === student.lastName.toLowerCase() &&
-          existingStudent.id !== editingStudent?.id
-      );
+      const nameError = validateName(student.firstName, "First name") || 
+                       validateName(student.lastName, "Last name");
+      if (nameError) {
+        setError(ErrorTypes.API, null, nameError);
+        return false;
+      }
 
-      if (isDuplicate) {
-        setError(
-          ErrorTypes.API,
-          null,
-          "A student with this name already exists"
-        );
+      const stopError = validateStopNumber(student.stopNumber);
+      if (stopError) {
+        setError(ErrorTypes.API, null, stopError);
+        return false;
+      }
+
+      const routeError = validateRoutes(student.amRoute, student.pmRoute);
+      if (routeError) {
+        setError(ErrorTypes.API, null, routeError);
+        return false;
+      }
+
+      const duplicateError = validateDuplicateStudent(student, students, editingStudent?.id);
+      if (duplicateError) {
+        setError(ErrorTypes.API, null, duplicateError);
         return false;
       }
 
@@ -33,7 +46,5 @@ export function useFormSubmissionValidation() {
     [students, setError, clearError]
   );
 
-  return {
-    validateStudentForm,
-  };
+  return { validateStudentForm };
 }

@@ -46,49 +46,6 @@ export function StudentForm() {
     }
   }, [editingStudent]);
 
-  // old handleSubmit
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-    
-  //   if (!validateStudent(student)) {
-  //     setIsSubmitting(false);
-  //     toast.error("Please fix all errors in the form before submitting.");
-  //     return;
-  //   }
-    
-  //   // Add form-level validation
-  //   if (!validateStudentForm({ student, editingStudent })) {
-  //     setIsSubmitting(false);
-  //     toast.error("Please fix all errors in the form before submitting.");
-  //     return;
-  //   }
-    
-  //   clearAllErrors();
-  //   setIsSubmitting(true);
-    
-  //   try {
-  //     if (editingStudent) {
-  //       await dispatch(
-  //         editStudentAction({
-  //           updatedStudent: student,
-  //           originalStudent: editingStudent,
-  //         })
-  //       );
-  //       toast.success(`${student.firstName} ${student.lastName} updated successfully`);
-  //     } else {
-  //       await dispatch(addStudent(student));
-  //       toast.success(`${student.firstName} ${student.lastName} added successfully`);
-  //     }
-  //     navigate("/");
-  //   } catch (err) {
-  //     setError(ErrorTypes.API, null, err.message || "Failed to save student");
-  //     toast.error(err.message || "Failed to save student");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
-
 const handleSubmit = async (e) => {
   e.preventDefault();
   
