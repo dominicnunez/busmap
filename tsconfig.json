@@ -1,8 +1,16 @@
 {
-    "compilerOptions": {
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["./src/*"]
-      }
+  "compilerOptions": {
+    "target": "es2015",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "outDir": "./dist",
+    "noEmit": true,
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

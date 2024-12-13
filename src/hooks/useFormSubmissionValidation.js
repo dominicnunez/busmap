@@ -6,7 +6,7 @@ import {
   validateStopNumber, 
   validateRoutes,
   validateDuplicateStudent 
-} from "../valdation/validationRules";
+} from "../validation/validationRules";
 
 export function useFormSubmissionValidation() {
   const { setError, clearError } = useErrorManager();
