@@ -1,6 +1,6 @@
 // selectors/student.ts
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../store/store';
+import { RootState } from './store';
 import { Student } from '../types/student';
 
 const selectStudentState = (state: RootState) => state.students;

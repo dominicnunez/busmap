@@ -1,19 +1,21 @@
 import { useCallback } from "react";
-import { useErrorManager, ErrorTypes } from "./useErrorManager";
-import { validateName, validateStopNumber, validateRoutes } from "../validation/validationRules";
+import { useErrorManager, ErrorTypes } from "../../hooks/useErrorManager";
+import { validateName, validateStopNumber, validateRoutes } from "../../validation/validationRules";
+import { StudentFormData } from "../../types/student";
 
-export function useStudentFormValidation() {
+type FieldName = keyof StudentFormData;
+type ValidationFunction = (name: FieldName, value: any, formData: StudentFormData) => boolean;
+
+export function useInputValidation() {
   const { setError, clearError, clearAllErrors, getError } = useErrorManager();
 
-  const validateField = useCallback((name, value, formData) => {
+  const validateField: ValidationFunction = useCallback((name, value, formData) => {
     let error = "";
     
     switch (name) {
       case 'firstName':
-        error = validateName(value, "First name");
-        break;
       case 'lastName':
-        error = validateName(value, "Last name");
+        error = validateName(value, name === 'firstName' ? "First name" : "Last name");
         break;
       case 'stopNumber':
         error = validateStopNumber(value);
@@ -38,20 +40,19 @@ export function useStudentFormValidation() {
     return !error;
   }, [setError, clearError]);
 
-  const validateStudent = useCallback((student) => {
+  const validateStudent = useCallback((student: StudentFormData): boolean => {
     clearAllErrors();
-    const validations = [
+    return [
       validateField('firstName', student.firstName, student),
       validateField('lastName', student.lastName, student),
       validateField('stopNumber', student.stopNumber, student),
       validateField('amRoute', student.amRoute, student)
-    ];
-    return validations.every(Boolean);
+    ].every(Boolean);
   }, [clearAllErrors, validateField]);
 
   return {
     validateField,
     validateStudent,
-    getValidationError: (fieldName) => getError(ErrorTypes.VALIDATION, fieldName),
+    getValidationError: (fieldName: FieldName) => getError(ErrorTypes.VALIDATION, fieldName),
   };
 }

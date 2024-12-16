@@ -1,28 +1,40 @@
-import { useState } from 'react';
-import PropTypes from "prop-types";
+import { FC, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import { Search, Link2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { deleteStudent } from '@/store/studentSlice';
+import { deleteStudent } from '../../store/studentSlice';
+import { Student } from '@/types/student';
+import { RootState, AppDispatch } from '../../store/store';
 
-export function StudentTable({ onEdit }) {
-  const dispatch = useDispatch();
-  const students = useSelector(state => state.students.students);
-  const [searchTerm, setSearchTerm] = useState('');
+interface StudentDataGridProps {
+  onEdit: (id: string) => void;
+}
 
-  const filteredStudents = students.filter((student) => {
-    const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
-    return fullName.includes(searchTerm.toLowerCase());
-  });
+export const StudentDataGrid: FC<StudentDataGridProps> = ({ onEdit }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const students = useSelector((state: RootState) => state.students.students);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const handleDelete = (id) => {
+  const filteredStudents = useCallback((): Student[] => {
+    return students.filter((student) => {
+      const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
+      return fullName.includes(searchTerm.toLowerCase());
+    });
+  }, [students, searchTerm]);
+
+  const handleDelete = useCallback((id: string): void => {
     dispatch(deleteStudent(id));
     toast.success('Student deleted successfully');
-  };
+  }, [dispatch]);
 
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  // Rest of the component remains the same...
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
@@ -31,7 +43,7 @@ export function StudentTable({ onEdit }) {
           <Input
             placeholder="Search students..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearch}
             className="pl-8"
           />
         </div>
@@ -52,8 +64,8 @@ export function StudentTable({ onEdit }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map((student) => (
+            {filteredStudents().length > 0 ? (
+              filteredStudents().map((student) => (
                 <TableRow key={student.id}>
                   <TableCell>{student.id ? student.id.slice(0, 8) : ''}</TableCell>
                   <TableCell>{`${student.firstName} ${student.lastName}`}</TableCell>
@@ -100,8 +112,4 @@ export function StudentTable({ onEdit }) {
       </div>
     </div>
   );
-}
-
-StudentTable.propTypes = {
-  onEdit: PropTypes.func.isRequired,
 };

@@ -1,21 +1,30 @@
+import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StudentTable } from '../components/tables/StudentTable';
+import { StudentDataGrid } from '../components/StudentDataGrid';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 
-export function StudentList() {
+export const StudentManagementView: FC = () => {
   const navigate = useNavigate();
+
+  const handleAddStudent = (): void => {
+    navigate('/student/new');
+  };
+
+  const handleEditStudent = (id: string): void => {
+    navigate(`/student/${id}`);
+  };
 
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Bus Map</h1>
-        <Button onClick={() => navigate('/student/new')}>
+        <Button onClick={handleAddStudent}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Student
         </Button>
       </div>
-      <StudentTable onEdit={(id) => navigate(`/student/${id}`)} />
+      <StudentDataGrid onEdit={handleEditStudent} />
     </div>
   );
-}
+};

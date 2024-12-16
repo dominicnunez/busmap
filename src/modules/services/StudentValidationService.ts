@@ -1,4 +1,4 @@
-import { Student } from '../types/student';
+import { Student } from '../../types/student';
 
 export class ValidationMessageService {
   static readonly REQUIRED = (field: string) => `${field} is required`;

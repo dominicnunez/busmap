@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { Student } from "../types/student";
+import { Student } from "../../types/student";
 
 type ActionType = "success" | "error";
 type ActionVerb = "update" | "add" | "validation";
