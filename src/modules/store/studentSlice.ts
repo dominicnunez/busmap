@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
-import { Student, StudentState, StudentFormData, EditStudentPayload } from '../types/student';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Student, StudentState, StudentFormData, EditStudentPayload } from '@/modules/types/student';
 
 const initialState: StudentState = {
   students: JSON.parse(localStorage.getItem('students') || '[]'),

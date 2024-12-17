@@ -1,6 +1,4 @@
-// types/studentUtils.ts
-
-import { Student, StudentFormData } from './student';
+import { Student, StudentFormData } from '@/modules/types/student';
 
 // Type Guards
 export function isValidStudent(value: unknown): value is Student {

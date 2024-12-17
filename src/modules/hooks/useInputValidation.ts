@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { useErrorManager, ErrorTypes } from "../../hooks/useErrorManager";
-import { validateName, validateStopNumber, validateRoutes } from "../../validation/validationRules";
-import { StudentFormData } from "../../types/student";
+import { useErrorManager, ErrorTypes } from "@/modules/hooks/useErrorManager";
+import { validateName, validateStopNumber, validateRoutes } from "@/modules/utils/validation";
+import { StudentFormData } from "@/modules/types/student";
 
 type FieldName = keyof StudentFormData;
 type ValidationFunction = (name: FieldName, value: any, formData: StudentFormData) => boolean;

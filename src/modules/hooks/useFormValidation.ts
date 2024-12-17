@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 import { useSelector } from "react-redux";
-import { useErrorManager, ErrorTypes } from "../../hooks/useErrorManager";
+import { useErrorManager, ErrorTypes } from "@/modules/hooks/useErrorManager";
 import { 
   validateName, 
   validateStopNumber, 
   validateRoutes,
   validateDuplicateStudent 
-} from "../../validation/validationRules";
-import { Student, StudentFormData } from "../../types/student";
-import { RootState } from "../../store/store";
+} from "@/modules/utils/validation";
+import { Student, StudentFormData } from "@/modules/types/student";
+import { RootState } from "@/modules/store/store";
 
 interface ValidationParams {
   student: StudentFormData;

@@ -5,9 +5,9 @@ import { Search, Link2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { deleteStudent } from '../../store/studentSlice';
-import { Student } from '@/types/student';
-import { RootState, AppDispatch } from '../../store/store';
+import { deleteStudent } from '@/modules/store/studentSlice';
+import { Student } from '@/modules/types/student';
+import { RootState, AppDispatch } from '@/modules/store/store';
 
 interface StudentDataGridProps {
   onEdit: (id: string) => void;

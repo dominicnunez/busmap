@@ -1,10 +1,10 @@
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StudentDataGrid } from '../components/StudentDataGrid';
-import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { StudentDataGrid } from '@/modules/components/StudentDataGrid';
 
-export const StudentManagementView: FC = () => {
+export const StudentManagement: FC = () => {
   const navigate = useNavigate();
 
   const handleAddStudent = (): void => {
